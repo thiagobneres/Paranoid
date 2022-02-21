@@ -60,7 +60,7 @@ public class WarpBrick : MonoBehaviour
         // Once ball leaves the brick, make sure it can warp the ball again
         if (col.tag == "Ball" && !canWarpBall)
         {
-            canWarpBall = false;
+            canWarpBall = true;
         }
     }
 
