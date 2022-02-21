@@ -419,4 +419,9 @@ public class Ball : MonoBehaviour {
         playSound.Explosion();
 
     }
+
+    public void Warp(Vector3 targetPos)
+    {
+        transform.position = targetPos;
+    }
 }
