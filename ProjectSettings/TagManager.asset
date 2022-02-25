@@ -8,6 +8,8 @@ TagManager:
   - Common Brick
   - Ball
   - Bomb
+  - Top Bottom Brick Edge
+  - Side Brick Edge
   layers:
   - Default
   - TransparentFX
