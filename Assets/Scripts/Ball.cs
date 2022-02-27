@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ball : MonoBehaviour {
+public class Ball : MonoBehaviour
+{
 
     [SerializeField]
     public bool isAttached = true;
@@ -47,9 +48,10 @@ public class Ball : MonoBehaviour {
     private MessageManager message;
 
     public bool hasBomb = false;
-    public bool hitBrickSides;
 
     private int brickCollisions = 0; // Adjusts the Y axis inversion in case of 2 collisions at the same time
+
+    private float brickCollisionOffsetY;
 
     void Awake() // Need to use Awake here, otherwise other scripts try to access the rb before it is initialized
     {
@@ -232,25 +234,10 @@ public class Ball : MonoBehaviour {
             {
                 float brickPosY = col.gameObject.transform.position.y; 
                 float ballPosY = transform.position.y;
-                float brickCollisionOffsetY = Mathf.Abs(brickPosY - ballPosY);
-
-                Debug.Log("Distance between Ball Pos Y and Brick Pos Y: " + brickCollisionOffsetY);
-
-                if (brickCollisionOffsetY >= 0.25f)
-                {
-                    hitBrickSides = false;
-                }
-
-                else
-                {
-                    hitBrickSides = true;
-                }
+                brickCollisionOffsetY = Mathf.Abs(brickPosY - ballPosY);
 
                 brickCollisions++;
             }
-
-            //Debug.Log("Previous speed: " + speedX + " / " + speedY);
-            //Debug.Log("Current speed: " + rb.velocity.x + " / " + rb.velocity.y);
 
         }
     }
@@ -266,6 +253,7 @@ public class Ball : MonoBehaviour {
         if (brickCollisions > 0)
         {
             Debug.Log("Brick collisions: " + brickCollisions);
+            Debug.Log("Distance between Ball Pos Y and Brick Pos Y: " + brickCollisionOffsetY);
 
             if (brickCollisions == 3)
             {
@@ -274,29 +262,51 @@ public class Ball : MonoBehaviour {
                 MultiplySpeed(1.02f);
                 playSound.Beep();
                 Debug.Log("Hit 3 bricks at once");
+                return;
             }
 
-            else
+            if (brickCollisions == 2)
             {
+                bool hitBrickSides = (brickCollisionOffsetY < 0.24f); // With two bricks, the ball collider can go deeper until it's triggered
+
                 if (hitBrickSides)
                 {
                     InvertSpeedX();
-                    MultiplySpeed(1.02f);
-                    playSound.Beep();
-                    Debug.Log("Hit side");
+                    Debug.Log("Hit side - 2 bricks");
                 }
 
                 else
                 {
                     InvertSpeedY();
-                    MultiplySpeed(1.02f);
-                    playSound.Beep();
-                    Debug.Log("Hit top/bottom");
+                    Debug.Log("Hit top/bottom - 2 bricks");
                 }
+
+                MultiplySpeed(1.02f);
+                playSound.Beep();
             }
 
-            brickCollisions = 0;
+            if (brickCollisions == 1)
+            {
+                bool hitBrickSides = (brickCollisionOffsetY < 0.25f);
+
+                if (hitBrickSides)
+                {
+                    InvertSpeedX();
+                    Debug.Log("Hit side - 1 brick");
+                }
+
+                else
+                {
+                    InvertSpeedY();
+                    Debug.Log("Hit top/bottom - 1 brick");
+                }
+
+                MultiplySpeed(1.02f);
+                playSound.Beep();
+            }
         }
+
+        brickCollisions = 0;
     }
 
     void HitPlayer()

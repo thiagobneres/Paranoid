@@ -13,9 +13,9 @@ public class ColorSwitchBrick : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
     }
 
-    void OnTriggerEnter2D(Collider2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.tag == "Ball")
+        if (col.gameObject.tag == "Ball")
 
         {
             hits++;
@@ -33,7 +33,7 @@ public class ColorSwitchBrick : MonoBehaviour
 
         }
 
-        if (col.tag == "Bomb")
+        if (col.gameObject.tag == "Bomb")
         {
             Destroy(gameObject);
         }
