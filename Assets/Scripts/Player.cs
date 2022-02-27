@@ -14,21 +14,27 @@ public class Player : MonoBehaviour
     public GameObject gameManagerObj;
     private GameManager game;
 
+    private GameObject ballObj;
+    private Ball ball;
+
     private bool speedCoroutineRunning = false;
     private bool sizeCoroutineRunning = false;
     private bool invertedAxisCoroutineRunning = false;
+    private bool botCoroutineRunning = false;
 
     private bool invertedAxis = false;
+
+    public bool hasBot = false;
 
     // Start is called before the first frame update
     void Awake()
     {
-        if (gameManagerObj == null)
-        {
-            gameManagerObj = GameObject.Find("GameManager");
-        }
 
+        gameManagerObj = GameObject.Find("GameManager");
         game = gameManagerObj.GetComponent<GameManager>();
+
+        ballObj = GameObject.Find("Ball");
+        ball = ballObj.GetComponent<Ball>();
     }
 
     public void ResetPosition()
@@ -48,6 +54,13 @@ public class Player : MonoBehaviour
     { 
         if (canMove && !game.loadingNextLevel)
         {
+
+            if (hasBot)
+            {
+                transform.position = new Vector2(ballObj.transform.position.x, transform.position.y);
+                return;
+            }
+
             if (Input.GetKey("left") && Input.GetKey("right"))
             {
                 return;
@@ -195,5 +208,32 @@ public class Player : MonoBehaviour
         ResetAxis();
     }
 
+    public void StartBot()
+    {
+        if (!hasBot)
+        {
+            hasBot = true;
+            StartCoroutine(WaitToStopBot());
+        }
+    }
+
+    IEnumerator WaitToStopBot()
+    {
+        botCoroutineRunning = true;
+        yield return new WaitForSeconds(10f);
+        botCoroutineRunning = false;
+        StopBot();
+    }
+
+    public void StopBot()
+    {
+        hasBot = false;
+
+        if (botCoroutineRunning)
+        {
+            botCoroutineRunning = false;
+            StopCoroutine(WaitToStopBot());
+        }
+    }
 
 }

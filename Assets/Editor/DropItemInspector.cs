@@ -8,7 +8,7 @@ public class DropItemInspector : Editor
 {
 
     SerializedProperty listOfItems;
-    string[] _items = new[] { "Life +", "Life -", "Bar Speed +", "Bar Speed -", "Ball Speed +", "Ball Speed -", "Expand Bar", "Shrink Bar", "Invert Bar", "Bomb", "Ghost", "Laser" };
+    string[] _items = new[] { "Life +", "Life -", "Bar Speed +", "Bar Speed -", "Ball Speed +", "Ball Speed -", "Expand Bar", "Shrink Bar", "Invert Bar", "Bomb", "Ghost", "Bot", "Clock" };
     int _index;
 
     public override void OnInspectorGUI()

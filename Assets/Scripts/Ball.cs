@@ -48,6 +48,9 @@ public class Ball : MonoBehaviour
     private MessageManager message;
 
     public bool hasBomb = false;
+    public bool hasGhost = false;
+
+    private int ghostCount = 0;
 
     private int brickCollisions = 0; // Adjusts the Y axis inversion in case of 2 collisions at the same time
 
@@ -185,6 +188,9 @@ public class Ball : MonoBehaviour
                 transform.position = new Vector2(transform.position.x, maxY);
                 InvertSpeedY();
             }
+
+            Ghost();
+            
         }
     }
 
@@ -210,6 +216,7 @@ public class Ball : MonoBehaviour
         if (col.tag == "Player" && rb.velocity.y != 0)
         {
             HitPlayer();
+            Ghost();
             playSound.Beep();
             Debug.Log("Hit player");
         }
@@ -256,9 +263,13 @@ public class Ball : MonoBehaviour
 
             if (brickCollisions == 3)
             {
-                InvertSpeedX();
-                InvertSpeedY();
-                MultiplySpeed(1.02f);
+                if (!hasGhost)
+                {
+                    InvertSpeedX();
+                    InvertSpeedY();
+                    MultiplySpeed(1.02f);
+                }
+
                 playSound.Beep();
                 Debug.Log("Hit 3 bricks at once");
                 return;
@@ -268,18 +279,21 @@ public class Ball : MonoBehaviour
             {
                 Debug.Log("Brick collisions: " + brickCollisions);
 
-                if (angle > 45f && angle < 135f) // 2nd option: 34f and 146f
+                if (!hasGhost)
                 {
-                    InvertSpeedX();
-                    Debug.Log("Hit side");
-                    Debug.Log("### Angle: " + angle);
-                }
+                    if (angle > 45f && angle < 135f) // 2nd option: 34f and 146f
+                    {
+                        InvertSpeedX();
+                        Debug.Log("Hit side");
+                        Debug.Log("### Angle: " + angle);
+                    }
 
-                else
-                {
-                    InvertSpeedY();
-                    Debug.Log("Hit top/bottom");
-                    Debug.Log("### Angle: " + angle);
+                    else
+                    {
+                        InvertSpeedY();
+                        Debug.Log("Hit top/bottom");
+                        Debug.Log("### Angle: " + angle);
+                    }
                 }
 
                 MultiplySpeed(1.02f);
@@ -428,7 +442,9 @@ public class Ball : MonoBehaviour
             player.ResetSpeed();
             player.ResetSize();
             player.ResetAxis();
+            player.StopBot();
             hasBomb = false;
+            hasGhost = false;
             Attach();
         }
     }
@@ -446,5 +462,18 @@ public class Ball : MonoBehaviour
     public void Warp(Vector3 targetPos)
     {
         transform.position = targetPos;
+    }
+
+   void Ghost()
+    {
+        if (hasGhost)
+        {
+            ghostCount++;
+
+            if (ghostCount == 2)
+            {
+                hasGhost = false;
+            }
+        }
     }
 }

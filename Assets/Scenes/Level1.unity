@@ -1920,6 +1920,7 @@ MonoBehaviour:
   playerSpeed: 1
   canMove: 1
   gameManagerObj: {fileID: 1436692558}
+  hasBot: 0
 --- !u!61 &556649497
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -10375,7 +10376,7 @@ MonoBehaviour:
   gameManagerObj: {fileID: 1436692558}
   messageManagerObj: {fileID: 611734315}
   hasBomb: 0
-  hitBrickSides: 0
+  hasGhost: 0
 --- !u!50 &2041200644
 Rigidbody2D:
   serializedVersion: 4

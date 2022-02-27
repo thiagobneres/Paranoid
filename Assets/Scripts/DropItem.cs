@@ -10,41 +10,44 @@ public class DropItem : MonoBehaviour
     private GameObject itemGO;
     // Variable is set via Inspector and controlled by DropItemInspector.cs in /Editor
 
-        // "Life +" 
-        // Add 1 life
+    // "Life +" 
+    // Add 1 life
 
-        // "Life -"
-        // Remove 1 life
+    // "Life -"
+    // Remove 1 life
 
-        // "Bar Speed +"
-        // Increase bar movement speed
+    // "Bar Speed +"
+    // Increase bar movement speed
 
-        // "Bar Speed -" 
-        // Decrease bar movement speed
+    // "Bar Speed -" 
+    // Decrease bar movement speed
 
-        // "Ball Speed +" 
-        // Speed up ball
+    // "Ball Speed +" 
+    // Speed up ball
 
-        // "Ball Speed -" 
-        // Slow down ball
+    // "Ball Speed -" 
+    // Slow down ball
 
-        // "Expand Bar" 
-        // Bar gets wider
+    // "Expand Bar" 
+    // Bar gets wider
 
-        // "Shrink Bar" 
-        // Bar gets narrower
-        
-        // "Invert Bar" 
-        // Player inputs are inverted (right and left)
-        
-        // "Bomb" 
-        // Instantiates a circle area transparent prefab on the first collision with a brick. All bricks that collide with the circle get destroyed
-        
-        // "Ghost" 
-        // Collision with bricks doesn't invert ball movement until it hits 2 other fixed objects (player, bound, or gray brick)
-        
-        // "Laser"
-        // Player can shoot lasers from the bar for 5s
+    // "Shrink Bar" 
+    // Bar gets narrower
+
+    // "Invert Bar" 
+    // Player inputs are inverted (right and left)
+
+    // "Bomb" 
+    // Instantiates a circle area transparent prefab on the first collision with a brick. All bricks that collide with the circle get destroyed
+
+    // "Ghost" 
+    // Collision with bricks doesn't invert ball movement until it hits 2 other fixed objects (player, bound, or gray brick)
+
+    // "Bot"
+    // Bar Y axis follows ball for 10s
+
+    // "Clock"
+    // Time + 30s
 
     void OnTriggerEnter2D(Collider2D col)
     {
@@ -97,6 +100,24 @@ public class DropItem : MonoBehaviour
             {
                 itemGO = Instantiate(Resources.Load("Items/Invert Bar", typeof(GameObject))) as GameObject;
             }
+
+            if (item == "Bomb")
+            {
+                itemGO = Instantiate(Resources.Load("Items/Bomb", typeof(GameObject))) as GameObject;
+            }
+
+            if (item == "Ghost")
+            {
+                itemGO = Instantiate(Resources.Load("Items/Ghost", typeof(GameObject))) as GameObject;
+            }
+
+            if (item == "Bot")
+            {
+                itemGO = Instantiate(Resources.Load("Items/Bot", typeof(GameObject))) as GameObject;
+            }
+
+
+
 
             itemGO.transform.position = new Vector2(transform.position.x, transform.position.y);
 
