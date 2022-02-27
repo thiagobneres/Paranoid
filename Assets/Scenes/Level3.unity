@@ -5016,6 +5016,7 @@ MonoBehaviour:
   playerSpeed: 1
   canMove: 1
   gameManagerObj: {fileID: 0}
+  hasBot: 0
 --- !u!212 &1400581997
 SpriteRenderer:
   m_ObjectHideFlags: 0

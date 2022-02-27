@@ -7239,6 +7239,7 @@ MonoBehaviour:
   playerSpeed: 1
   canMove: 1
   gameManagerObj: {fileID: 0}
+  hasBot: 0
 --- !u!212 &1400581997
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -10962,7 +10963,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b04fec8629e46441b85af28c93c0851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: Life +
+  item: Bot
 --- !u!1 &2095327052
 GameObject:
   m_ObjectHideFlags: 0

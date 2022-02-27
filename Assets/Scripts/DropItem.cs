@@ -49,10 +49,10 @@ public class DropItem : MonoBehaviour
     // "Clock"
     // Time + 30s
 
-    void OnTriggerEnter2D(Collider2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
 
-        if (col.tag == "Ball" && !droppedItem)
+        if (col.gameObject.tag == "Ball" && !droppedItem)
         {
             droppedItem = true; // Prevent items dropping twice when ball hits switching blocks
 

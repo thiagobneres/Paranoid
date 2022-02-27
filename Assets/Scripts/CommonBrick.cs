@@ -7,7 +7,15 @@ public class CommonBrick : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.tag == "Ball" || col.gameObject.tag == "Bomb")
+        if (col.gameObject.tag == "Ball")
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other) // This needs to be separate because Bomb Area GO is Kinematic / isTrigger = true
+    {
+        if (other.tag == "Bomb")
         {
             Destroy(gameObject);
         }

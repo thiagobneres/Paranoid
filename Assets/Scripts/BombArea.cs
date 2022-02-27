@@ -11,6 +11,7 @@ public class BombArea : MonoBehaviour
         if (col.tag == "Common Brick") // Need to make sure that gray brick is considered here
         {
             Destroy(gameObject);
+            Debug.Log("Bomb area GO destroyed properly");
         }
     }
 }
