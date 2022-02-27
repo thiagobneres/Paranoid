@@ -5,10 +5,11 @@ using UnityEngine;
 public class CommonBrick : MonoBehaviour
 {
 
-    void OnTriggerEnter2D(Collider2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.tag == "Ball" || col.tag == "Bomb")
+        if (col.gameObject.tag == "Ball" || col.gameObject.tag == "Bomb")
         {
+            Debug.Log("Brick destroyed");
             Destroy(gameObject);
         }
     }

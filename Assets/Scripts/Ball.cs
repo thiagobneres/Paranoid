@@ -47,9 +47,7 @@ public class Ball : MonoBehaviour {
     private MessageManager message;
 
     public bool hasBomb = false;
-
-    private bool hitSideBrick = false;
-    private bool hitTopBottomBrick = false;
+    public bool hitBrickSides;
 
     private int brickCollisions = 0; // Adjusts the Y axis inversion in case of 2 collisions at the same time
 
@@ -126,8 +124,11 @@ public class Ball : MonoBehaviour {
 
     void GetSpeed()
     {
-        speedX = rb.velocity.x;
-        speedY = rb.velocity.y;
+        if (rb.velocity.x != 0 && rb.velocity.y != 0)
+        {
+            speedX = rb.velocity.x;
+            speedY = rb.velocity.y;
+        }
     }
 
     void Launch()
@@ -208,20 +209,49 @@ public class Ball : MonoBehaviour {
             playSound.Beep();
             Debug.Log("Hit player");
         }
+    }
 
-        if (col.tag == "Common Brick")
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Common Brick")
         {
-            brickCollisions++;
-        }
+            Debug.Log("Hit a brick");
 
-        if (col.tag == "Side Brick Edge")
-        {
-            hitSideBrick = true;
-        }
+            rb.velocity = new Vector2(speedX, speedY); // Restore rb velocity after collision
 
-        if (col.tag == "Top Bottom Brick Edge")
-        {
-            hitTopBottomBrick = true;
+            if (hasBomb)
+            {
+                InvertSpeedX();
+                InvertSpeedY();
+                ExplodeBomb();
+                Debug.Log("Exploded bomb");
+                return;
+            }
+
+            else
+            {
+                float brickPosY = col.gameObject.transform.position.y; 
+                float ballPosY = transform.position.y;
+                float brickCollisionOffsetY = Mathf.Abs(brickPosY - ballPosY);
+
+                Debug.Log("Distance between Ball Pos Y and Brick Pos Y: " + brickCollisionOffsetY);
+
+                if (brickCollisionOffsetY >= 0.25f)
+                {
+                    hitBrickSides = false;
+                }
+
+                else
+                {
+                    hitBrickSides = true;
+                }
+
+                brickCollisions++;
+            }
+
+            //Debug.Log("Previous speed: " + speedX + " / " + speedY);
+            //Debug.Log("Current speed: " + rb.velocity.x + " / " + rb.velocity.y);
+
         }
     }
 
@@ -233,50 +263,40 @@ public class Ball : MonoBehaviour {
     void CheckBrickCollision()
     {
 
-        if (hasBomb && brickCollisions > 0)
-        {
-                InvertSpeedX();
-                InvertSpeedY();
-                ExplodeBomb();
-                Debug.Log("Exploded bomb");
-                return;
-        }
-
         if (brickCollisions > 0)
         {
+            Debug.Log("Brick collisions: " + brickCollisions);
 
-            Debug.Log("Bricks hit: " + brickCollisions);
-            Debug.Log("Side: " + hitSideBrick);
-            Debug.Log("Top/bottom: " + hitTopBottomBrick);
-
-            if (hitSideBrick && !hitTopBottomBrick)
+            if (brickCollisions == 3)
             {
                 InvertSpeedX();
-                MultiplySpeed(1.02f);
-                playSound.Beep();
-                Debug.Log("Hit side brick, inverting X");
-            }
-
-            else if (hitTopBottomBrick && !hitSideBrick)
-            {
                 InvertSpeedY();
                 MultiplySpeed(1.02f);
                 playSound.Beep();
-                Debug.Log("Hit top/bottom brick, inverting Y");
+                Debug.Log("Hit 3 bricks at once");
             }
 
             else
             {
-                InvertSpeedY();
-                MultiplySpeed(1.02f);
-                playSound.Beep();
-                Debug.Log("Hit edge of the brick, inverting Y, but unsure of what to do");
-            }
-        }
+                if (hitBrickSides)
+                {
+                    InvertSpeedX();
+                    MultiplySpeed(1.02f);
+                    playSound.Beep();
+                    Debug.Log("Hit side");
+                }
 
-        hitSideBrick = false;
-        hitTopBottomBrick = false;
-        brickCollisions = 0;
+                else
+                {
+                    InvertSpeedY();
+                    MultiplySpeed(1.02f);
+                    playSound.Beep();
+                    Debug.Log("Hit top/bottom");
+                }
+            }
+
+            brickCollisions = 0;
+        }
     }
 
     void HitPlayer()
