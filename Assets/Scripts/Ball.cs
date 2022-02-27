@@ -53,6 +53,8 @@ public class Ball : MonoBehaviour
 
     private float brickCollisionOffsetY;
 
+    private float angle;
+
     void Awake() // Need to use Awake here, otherwise other scripts try to access the rb before it is initialized
     {
         rb = GetComponent<Rigidbody2D>();
@@ -217,7 +219,7 @@ public class Ball : MonoBehaviour
     {
         if (col.gameObject.tag == "Common Brick")
         {
-            Debug.Log("Hit a brick");
+            //Debug.Log("Hit a brick");
 
             rb.velocity = new Vector2(speedX, speedY); // Restore rb velocity after collision
 
@@ -232,9 +234,8 @@ public class Ball : MonoBehaviour
 
             else
             {
-                float brickPosY = col.gameObject.transform.position.y; 
-                float ballPosY = transform.position.y;
-                brickCollisionOffsetY = Mathf.Abs(brickPosY - ballPosY);
+                var direction = (Vector2)col.contacts[0].point - (Vector2)transform.position;
+                angle = Mathf.Abs(Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg);
 
                 brickCollisions++;
             }
@@ -252,8 +253,6 @@ public class Ball : MonoBehaviour
 
         if (brickCollisions > 0)
         {
-            Debug.Log("Brick collisions: " + brickCollisions);
-            Debug.Log("Distance between Ball Pos Y and Brick Pos Y: " + brickCollisionOffsetY);
 
             if (brickCollisions == 3)
             {
@@ -265,45 +264,27 @@ public class Ball : MonoBehaviour
                 return;
             }
 
-            if (brickCollisions == 2)
+            else
             {
-                bool hitBrickSides = (brickCollisionOffsetY < 0.24f); // With two bricks, the ball collider can go deeper until it's triggered
+                Debug.Log("Brick collisions: " + brickCollisions);
 
-                if (hitBrickSides)
+                if (angle > 45f && angle < 135f) // 2nd option: 34f and 146f
                 {
                     InvertSpeedX();
-                    Debug.Log("Hit side - 2 bricks");
+                    Debug.Log("Hit side");
+                    Debug.Log("### Angle: " + angle);
                 }
 
                 else
                 {
                     InvertSpeedY();
-                    Debug.Log("Hit top/bottom - 2 bricks");
+                    Debug.Log("Hit top/bottom");
+                    Debug.Log("### Angle: " + angle);
                 }
 
                 MultiplySpeed(1.02f);
                 playSound.Beep();
-            }
-
-            if (brickCollisions == 1)
-            {
-                bool hitBrickSides = (brickCollisionOffsetY < 0.25f);
-
-                if (hitBrickSides)
-                {
-                    InvertSpeedX();
-                    Debug.Log("Hit side - 1 brick");
-                }
-
-                else
-                {
-                    InvertSpeedY();
-                    Debug.Log("Hit top/bottom - 1 brick");
-                }
-
-                MultiplySpeed(1.02f);
-                playSound.Beep();
-            }
+            } 
         }
 
         brickCollisions = 0;
@@ -319,7 +300,7 @@ public class Ball : MonoBehaviour
 
         if (offset <= offsetSpeed1)
         {
-            
+
             MultiplySpeed(speed1);
             float newSpeedX = Random.Range(((rb.velocity.x - 0) / 2), rb.velocity.x); // Widen angle
             rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
@@ -403,7 +384,7 @@ public class Ball : MonoBehaviour
         }
     }
 
-    public void BallDrop() 
+    public void BallDrop()
     {
         if (transform.position.y <= -5.12f && rb.velocity.y != 0)
         {
@@ -428,8 +409,8 @@ public class Ball : MonoBehaviour
 
     public void Death()
     {
-            game.PlayerLife--; // Tells the GameManager that the player lost 1 life
-            player.canMove = false;
+        game.PlayerLife--; // Tells the GameManager that the player lost 1 life
+        player.canMove = false;
     }
 
     void StopBall() // Holds the ball in place in case of time out

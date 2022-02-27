@@ -9,7 +9,6 @@ public class CommonBrick : MonoBehaviour
     {
         if (col.gameObject.tag == "Ball" || col.gameObject.tag == "Bomb")
         {
-            Debug.Log("Brick destroyed");
             Destroy(gameObject);
         }
     }
