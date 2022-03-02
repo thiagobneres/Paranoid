@@ -57,6 +57,7 @@ public class Ball : MonoBehaviour
     private float brickCollisionOffsetY;
 
     private float angle;
+    private Vector3 lastPos;
 
     void Awake() // Need to use Awake here, otherwise other scripts try to access the rb before it is initialized
     {
@@ -127,6 +128,8 @@ public class Ball : MonoBehaviour
         BallDrop();
         StopBall(); // Prevents the ball from moving after life is lost
         Reset();
+        GetLastPosition();
+
     }
 
     void GetSpeed()
@@ -136,6 +139,11 @@ public class Ball : MonoBehaviour
             speedX = rb.velocity.x;
             speedY = rb.velocity.y;
         }
+    }
+
+    void GetLastPosition()
+    {
+        lastPos = transform.position;
     }
 
     void Launch()
@@ -190,7 +198,7 @@ public class Ball : MonoBehaviour
             }
 
             Ghost();
-            
+
         }
     }
 
@@ -203,11 +211,13 @@ public class Ball : MonoBehaviour
 
     void InvertSpeedX()
     {
+        transform.position = lastPos;
         rb.velocity = new Vector2(-rb.velocity.x, rb.velocity.y);
     }
 
     void InvertSpeedY()
     {
+        transform.position = lastPos;
         rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
     }
 
@@ -261,7 +271,7 @@ public class Ball : MonoBehaviour
         if (brickCollisions > 0)
         {
 
-            if (brickCollisions == 3)
+            if (brickCollisions >= 3)
             {
                 if (!hasGhost)
                 {
@@ -271,7 +281,7 @@ public class Ball : MonoBehaviour
                 }
 
                 playSound.Beep();
-                Debug.Log("Hit 3 bricks at once");
+                Debug.Log("Hit 3+ bricks at once");
                 return;
             }
 
@@ -281,24 +291,24 @@ public class Ball : MonoBehaviour
 
                 if (!hasGhost)
                 {
-                    if (angle > 45f && angle < 135f) // 2nd option: 34f and 146f
-                    {
-                        InvertSpeedX();
-                        Debug.Log("Hit side");
-                        Debug.Log("### Angle: " + angle);
-                    }
+                        if (angle > 45f && angle < 135f) // 2nd option: 34f and 146f
+                        {
+                            InvertSpeedX();
+                            Debug.Log("Hit side");
+                            Debug.Log("### Angle: " + angle);
+                        }
 
-                    else
-                    {
-                        InvertSpeedY();
-                        Debug.Log("Hit top/bottom");
-                        Debug.Log("### Angle: " + angle);
-                    }
+                        else
+                        {
+                            InvertSpeedY();
+                            Debug.Log("Hit top/bottom");
+                            Debug.Log("### Angle: " + angle);
+                        }
                 }
 
                 MultiplySpeed(1.02f);
                 playSound.Beep();
-            } 
+            }
         }
 
         brickCollisions = 0;
@@ -359,13 +369,6 @@ public class Ball : MonoBehaviour
                 rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
             }
 
-        }
-
-        if (transform.position.y <= -4.75f) // Hit the bar, but it's TOO LATE
-        {
-            InvertSpeedX();
-            player.canMove = false;
-            return;
         }
 
         InvertSpeedY();
@@ -464,7 +467,7 @@ public class Ball : MonoBehaviour
         transform.position = targetPos;
     }
 
-   void Ghost()
+    void Ghost()
     {
         if (hasGhost)
         {
