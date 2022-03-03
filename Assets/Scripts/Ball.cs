@@ -9,8 +9,12 @@ public class Ball : MonoBehaviour
     public bool isAttached = true;
 
     private Rigidbody2D rb;
-    private float startSpeedX;
-    private float startSpeedY = 3f;
+
+    private Vector2 direction;
+
+    private float startSpeed = 2f;
+    private float speed;
+    private float maxSpeed = 4.5f;
 
     [SerializeField]
     private float speedX;
@@ -20,17 +24,8 @@ public class Ball : MonoBehaviour
     private float minX = -5.865f;
     private float maxX = 5.865f;
     private float maxY = 4.565f;
-    private float offsetSpeed1 = 0.05f;
-    private float offsetSpeed2 = 0.3f;
-    private float offsetSpeed3 = 0.45f;
-    private float offsetSpeed4 = 0.598f;
+
     private float bounceSpeedMultiplier = 1.01f;
-    private float speed1 = 0.95f;
-    private float speed2 = 1f;
-    private float speed3 = 1.02f;
-    private float speed4 = 1.05f;
-    private float minSpeedY = 2f;
-    private float maxSpeedY = 6f;
 
     public GameObject soundManagerObj;
     private SoundManager playSound;
@@ -59,43 +54,23 @@ public class Ball : MonoBehaviour
     private float angle;
     private Vector3 lastPos;
 
-    void Awake() // Need to use Awake here, otherwise other scripts try to access the rb before it is initialized
+    void Awake() 
     {
         rb = GetComponent<Rigidbody2D>();
 
-        if (playerObj == null)
-        {
-            playerObj = GameObject.Find("Player");
-        }
-
+        playerObj = GameObject.Find("Player");
         player = playerObj.GetComponent<Player>();
 
-        if (soundManagerObj == null)
-        {
-            soundManagerObj = GameObject.Find("Sound Manager");
-        }
-
+        soundManagerObj = GameObject.Find("Sound Manager");
         playSound = soundManagerObj.GetComponent<SoundManager>();
 
-        if (timerObj == null)
-        {
-            timerObj = GameObject.Find("Timer Text");
-        }
-
+        timerObj = GameObject.Find("Timer Text");
         timer = timerObj.GetComponent<TimerManager>();
 
-        if (gameManagerObj == null)
-        {
-            gameManagerObj = GameObject.Find("GameManager");
-        }
-
+        gameManagerObj = GameObject.Find("GameManager");
         game = gameManagerObj.GetComponent<GameManager>();
 
-        if (messageManagerObj == null)
-        {
-            messageManagerObj = GameObject.Find("Message");
-        }
-
+        messageManagerObj = GameObject.Find("Message");
         message = messageManagerObj.GetComponent<MessageManager>();
     }
 
@@ -124,7 +99,7 @@ public class Ball : MonoBehaviour
         GetSpeed();
         Launch();
         HitBounds();
-        LimitSpeed();
+        EnforceLimits();
         BallDrop();
         StopBall(); // Prevents the ball from moving after life is lost
         Reset();
@@ -153,20 +128,11 @@ public class Ball : MonoBehaviour
             Detach();
             timer.StartTimer(); // Starts timer when ball is launched
 
-            int i = Random.Range(0, 2); // Necessary to avoid randomizer picking a super low X speed
-            // Random Range with integer is not maximally inclusive - The above can return only 0 or 1
+            direction = new Vector2(1, 1);
 
-            if (i == 0)
-            {
-                startSpeedX = Random.Range(-2f, -1f);
-            }
+            speed = startSpeed;
+            rb.velocity = direction * speed;
 
-            if (i == 1)
-            {
-                startSpeedX = Random.Range(2f, 1f);
-            }
-
-            rb.velocity = new Vector2(startSpeedX, startSpeedY);
             message.Clear();
             playSound.Launch();
         }
@@ -204,21 +170,25 @@ public class Ball : MonoBehaviour
 
     public void MultiplySpeed(float multiplier)
     {
-
-        rb.velocity *= multiplier;
+        speed *= multiplier;
+        Debug.Log("MultiplySpeed(): Speed is now " + speed);
+        Debug.Log("Direction is " + direction);
+        rb.velocity = direction * speed;
         GetSpeed();
     }
 
     void InvertSpeedX()
     {
         transform.position = lastPos;
-        rb.velocity = new Vector2(-rb.velocity.x, rb.velocity.y);
+        direction = new Vector2(-direction.x, direction.y);
+        rb.velocity = direction * speed;
     }
 
     void InvertSpeedY()
     {
         transform.position = lastPos;
-        rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y);
+        direction = new Vector2(direction.x, -direction.y);
+        rb.velocity = direction * speed;
     }
 
     void OnTriggerEnter2D(Collider2D col)
@@ -255,6 +225,7 @@ public class Ball : MonoBehaviour
                 angle = Mathf.Abs(Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg);
 
                 brickCollisions++;
+
             }
 
         }
@@ -271,7 +242,7 @@ public class Ball : MonoBehaviour
         if (brickCollisions > 0)
         {
 
-            if (brickCollisions >= 3)
+            if (brickCollisions == 3)
             {
                 if (!hasGhost)
                 {
@@ -285,6 +256,12 @@ public class Ball : MonoBehaviour
                 return;
             }
 
+            else if (brickCollisions > 3)
+            {
+                Reset();
+                Debug.Log("Something wrong happened, resetting ball");
+            }
+
             else
             {
                 Debug.Log("Brick collisions: " + brickCollisions);
@@ -295,15 +272,15 @@ public class Ball : MonoBehaviour
                         {
                             InvertSpeedX();
                             Debug.Log("Hit side");
-                            Debug.Log("### Angle: " + angle);
+                            Debug.Log("### Registered Angle: " + angle);
                         }
 
                         else
                         {
                             InvertSpeedY();
                             Debug.Log("Hit top/bottom");
-                            Debug.Log("### Angle: " + angle);
-                        }
+                            Debug.Log("### Registered Angle: " + angle);
+                        }                        
                 }
 
                 MultiplySpeed(1.02f);
@@ -316,88 +293,88 @@ public class Ball : MonoBehaviour
 
     void HitPlayer()
     {
-        float playerX = playerObj.transform.position.x;
-        float offset = Mathf.Abs(playerX - transform.position.x);
 
-        float ballX = transform.position.x;
-        float dist = ballX - playerX;
-
-        if (offset <= offsetSpeed1)
+        if (transform.position.y < -4.75f) // Ball can't be reached by the player, but collided horizontally
         {
-
-            MultiplySpeed(speed1);
-            float newSpeedX = Random.Range(((rb.velocity.x - 0) / 2), rb.velocity.x); // Widen angle
-            rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
-
+            InvertSpeedX();
+            MultiplySpeed(2f);
+            return;
         }
 
-        if (offset > offsetSpeed1 && offset <= offsetSpeed2)
+        else
         {
-            MultiplySpeed(speed2);
+            float playerX = playerObj.transform.position.x;
+            float offset = Mathf.Abs(playerX - transform.position.x);
+
+            // min offset 0 = 0.5 direction x
+            // max offset 0.6 = 1.5 direction x
+
+            float newDirX = ((offset * 1.5f) / 0.6f) + 0.5f;
+
+            if (Input.GetKey("left"))
+            {
+                // Kick ball to the left
+                direction = new Vector2(-newDirX, direction.y);
+            }
+
+            else if (Input.GetKey("right"))
+            {
+                // Kick ball to the right
+                direction = new Vector2(newDirX, direction.y);
+            }
+
+            else
+            {
+                // Not pressing either, ball will continue same direction and invert Y only
+                if (direction.x > 0)
+                {
+                    direction = new Vector2(newDirX, direction.y);
+                }
+
+                if (direction.x < 0)
+                {
+                    direction = new Vector2(-newDirX, direction.y);
+                }
+            }
+
+            rb.velocity = direction * speed;
+            InvertSpeedY();
         }
-
-        if (offset > offsetSpeed2 && offset <= offsetSpeed3)
-        {
-            MultiplySpeed(speed3);
-
-            if (dist > 0) // Ball ahead of bar
-            {
-                float newSpeedX = Random.Range((Mathf.Abs(rb.velocity.x) + 1f), rb.velocity.x); // Sharpen angle
-                rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
-            }
-
-            if (dist < 0) // Ball behind bar
-            {
-                float newSpeedX = Random.Range((-Mathf.Abs(rb.velocity.x) - 1f), rb.velocity.x); // Sharpen angle
-                rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
-            }
-        }
-
-        if (offset > offsetSpeed3 && offset <= offsetSpeed4)
-        {
-            MultiplySpeed(speed4);
-
-            if (dist > 0) // Ball ahead of bar
-            {
-                float newSpeedX = Random.Range((Mathf.Abs(rb.velocity.x) + 1.5f), rb.velocity.x); // Sharpen angle
-                rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
-            }
-
-            if (dist < 0) // Ball behind bar
-            {
-                float newSpeedX = Random.Range((-Mathf.Abs(rb.velocity.x) - 1.5f), rb.velocity.x); // Sharpen angle
-                rb.velocity = new Vector2(newSpeedX, rb.velocity.y);
-            }
-
-        }
-
-        InvertSpeedY();
     }
 
-    void LimitSpeed()
+    void EnforceLimits()
     {
-        if (Mathf.Abs(rb.velocity.y) > maxSpeedY)
-        {
-            if (rb.velocity.y > 0)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, maxSpeedY);
-            }
-            if (rb.velocity.y < 0)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, -maxSpeedY);
-            }
-        }
 
-        if (Mathf.Abs(rb.velocity.y) < minSpeedY && !isAttached)
+        if (!isAttached)
         {
-            if (rb.velocity.y > 0)
+            // Limit speed to max speed
+
+            if (speed > maxSpeed)
             {
-                rb.velocity = new Vector2(rb.velocity.x, minSpeedY);
+                speed = maxSpeed;
+                Debug.Log("Maximum speed reached");
             }
-            if (rb.velocity.y < 0)
+
+            // Fix direction X
+
+            if (direction.x > 0)
             {
-                rb.velocity = new Vector2(rb.velocity.x, -minSpeedY);
+                if (direction.x > 1.5f)
+                    direction = new Vector2(1.5f, direction.y);
+
+                if (direction.x < 0.5f)
+                    direction = new Vector2(0.5f, direction.y);
             }
+
+            if (direction.x < 0)
+            {
+                if (direction.x < -1.5f)
+                    direction = new Vector2(-1.5f, direction.y);
+
+                if (direction.x > -0.5f)
+                    direction = new Vector2(-0.5f, direction.y);
+            }
+
         }
     }
 
@@ -405,7 +382,8 @@ public class Ball : MonoBehaviour
     {
         if (transform.position.y <= -5.12f && rb.velocity.y != 0)
         {
-            Kill();
+            //Kill();
+            rb.position = new Vector2(playerObj.transform.position.x, playerObj.transform.position.y + 0.2f);
         }
     }
 
