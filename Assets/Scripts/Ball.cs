@@ -49,6 +49,8 @@ public class Ball : MonoBehaviour
 
     private int ghostCount = 0;
 
+    private int brickCollisions = 0;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -98,6 +100,11 @@ public class Ball : MonoBehaviour
         BallDrop();
         StopBall(); // Prevents the ball from moving after life is lost
         Reset();
+
+        if (brickCollisions > 0)
+        {
+            brickCollisions = 0;
+        }
 
     }
 
@@ -195,6 +202,14 @@ public class Ball : MonoBehaviour
         {
             MultiplySpeed(bounceSpeedMultiplier);
             rb.velocity = rb.velocity * bounceSpeedMultiplier;
+
+            brickCollisions++;
+
+            if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
+            {
+                playSound.Beep();
+            }
+
         }
     }
 
@@ -213,7 +228,7 @@ public class Ball : MonoBehaviour
 
         if (transform.position.y < -4.75f) // Ball can't be reached by the player, but collided horizontally
         {
-            rb.velocity = new Vector2(-rb.velocity.x * 2, rb.velocity.y);
+            Kill();
 
             return;
         }
