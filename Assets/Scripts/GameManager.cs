@@ -127,6 +127,11 @@ public class GameManager : MonoBehaviour
         {
             LevelTimer = 150;
         }
+
+        if (ThisLevel == 6)
+        {
+            LevelTimer = 60;
+        }
     }
 
     public int PlayerLife

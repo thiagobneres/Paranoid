@@ -99,7 +99,8 @@ public class PongMaker : Editor
 
             bool isPrefab = PrefabUtility.IsPartOfPrefabInstance(obj);
 
-            if (isPrefab)
+            //if (isPrefab)
+            if (0 == 1)
             {
                 Debug.Log("Cloned a prefab");
                 cloneObj = PrefabUtility.InstantiatePrefab(obj) as GameObject;
