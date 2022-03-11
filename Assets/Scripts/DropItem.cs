@@ -116,6 +116,11 @@ public class DropItem : MonoBehaviour
                 itemGO = Instantiate(Resources.Load("Items/Bot", typeof(GameObject))) as GameObject;
             }
 
+            if (item == "Clock")
+            {
+                itemGO = Instantiate(Resources.Load("Items/Clock", typeof(GameObject))) as GameObject;
+            }
+
 
 
 

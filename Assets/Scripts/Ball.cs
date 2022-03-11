@@ -139,7 +139,29 @@ public class Ball : MonoBehaviour
             Detach();
             timer.StartTimer(); // Starts timer when ball is launched
 
-            direction = new Vector2(1, 1);
+            if (Input.GetKey("left") && !Input.GetKey("right")) 
+            {
+                direction = new Vector2(-1, 1); // Ball is launched to the left if key is pressed
+                startSpeed = 2.5f; // Faster speed to balance player able to pick direction
+                Debug.Log("Player was moving. Ball launched to the left with increased speed");
+            }
+
+            else if (Input.GetKey("right") && !Input.GetKey("left"))
+            {
+                direction = new Vector2(1, 1); // Ball is launched to the left if key is pressed
+                startSpeed = 2.5f; // Faster speed to balance player able to pick direction
+                Debug.Log("Player was moving. Ball launched to the right with increased speed");
+            }
+
+            else
+            {
+                direction = new Vector2(1, 1); // Default behavior - ball is launched to the right even if no key is pressed - regular speed
+                startSpeed = 2f;
+                Debug.Log("Player wasn't moving. Ball launched to the right with regular speed");
+            }
+
+            Debug.Log("Direction: " + direction);
+
             speed = startSpeed;
             rb.velocity = direction * speed;
 
@@ -200,14 +222,22 @@ public class Ball : MonoBehaviour
     {
         if (col.gameObject.tag == "Common Brick")
         {
-            MultiplySpeed(bounceSpeedMultiplier);
-            rb.velocity = rb.velocity * bounceSpeedMultiplier;
-
-            brickCollisions++;
-
-            if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
+            if (hasBomb)
             {
-                playSound.Beep();
+                ExplodeBomb();
+            }
+
+            else
+            {
+                MultiplySpeed(bounceSpeedMultiplier);
+                rb.velocity = rb.velocity * bounceSpeedMultiplier;
+
+                brickCollisions++;
+
+                if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
+                {
+                    playSound.Beep();
+                }
             }
 
         }

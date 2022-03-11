@@ -11,6 +11,7 @@ public class PongMaker : Editor
     private string cloneDir;
     private GameObject obj;
     private GameObject cloneObj;
+    private Vector2 newPos;
   
     public override void OnInspectorGUI()
     {
@@ -78,26 +79,39 @@ public class PongMaker : Editor
 
             if (dir == "up")
             {
-                Vector2 newPos = new Vector2(originalPosX, originalPosY + (i * 0.4f));
-                cloneObj = Instantiate(obj, newPos, Quaternion.identity);
+                newPos = new Vector2(originalPosX, originalPosY + (i * 0.4f));
             }
 
             if (dir == "down")
             {
-                Vector2 newPos = new Vector2(originalPosX, originalPosY - (i * 0.4f));
-                cloneObj = Instantiate(obj, newPos, Quaternion.identity);
+                newPos = new Vector2(originalPosX, originalPosY - (i * 0.4f));
             }
 
             if (dir == "right")
             {
-                Vector2 newPos = new Vector2(originalPosX + (i * 0.9f), originalPosY);
-                cloneObj = Instantiate(obj, newPos, Quaternion.identity);
+                newPos = new Vector2(originalPosX + (i * 0.9f), originalPosY);
             }
 
             if (dir == "left")
             {
-                Vector2 newPos = new Vector2(originalPosX - (i * 0.9f), originalPosY);
+                newPos = new Vector2(originalPosX - (i * 0.9f), originalPosY);
+            }
+
+            bool isPrefab = PrefabUtility.IsPartOfPrefabInstance(obj);
+
+            if (isPrefab)
+            {
+                Debug.Log("Cloned a prefab");
+                cloneObj = PrefabUtility.InstantiatePrefab(obj) as GameObject;
+                Debug.Log(cloneObj);
+                //cloneObj.transform.position = newPos;
+            }
+
+            else
+            {
+                Debug.Log("Cloned a regular GO");
                 cloneObj = Instantiate(obj, newPos, Quaternion.identity);
+                Debug.Log(cloneObj);
             }
 
             cloneObj.transform.parent = obj.transform.parent;

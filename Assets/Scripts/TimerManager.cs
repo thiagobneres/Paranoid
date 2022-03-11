@@ -8,7 +8,7 @@ public class TimerManager : MonoBehaviour
 {
     private TextMeshProUGUI textMesh;
     private int levelTimer; // Timer set for the level
-    private int timer; // Current timer
+    public int timer; // Current timer
     public bool isRunning = false;
 
     public GameObject ballObj;

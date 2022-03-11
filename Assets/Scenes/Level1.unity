@@ -9746,6 +9746,7 @@ GameObject:
   - component: {fileID: 2034113556}
   - component: {fileID: 2034113555}
   - component: {fileID: 2034113554}
+  - component: {fileID: 2034113558}
   m_Layer: 0
   m_Name: Blue Brick(Clone)
   m_TagString: Common Brick
@@ -9879,6 +9880,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2034113558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2034113552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b04fec8629e46441b85af28c93c0851, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  item: Clock
 --- !u!1 &2041200640
 GameObject:
   m_ObjectHideFlags: 0
@@ -9980,6 +9994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isAttached: 1
+  speed: 0
   speedX: 0
   speedY: 0
   soundManagerObj: {fileID: 2021094138}
