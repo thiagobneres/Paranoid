@@ -8,9 +8,10 @@ public class Ball : MonoBehaviour
     [SerializeField]
     public bool isAttached = true;
 
-    private Rigidbody2D rb;
+    public Rigidbody2D rb;
 
     private Vector2 direction;
+    private Vector2 lastVelocity;
 
     private float startSpeed = 2f;
     private float maxSpeed = 4.5f;
@@ -106,6 +107,42 @@ public class Ball : MonoBehaviour
             brickCollisions = 0;
         }
 
+        lastVelocity = rb.velocity;
+    }
+
+    void Launch()
+    {
+        if (isAttached && transform.parent != null && Input.GetKeyDown("space"))
+        {
+            Detach();
+            timer.StartTimer(); // Starts timer when ball is launched
+
+            if (Input.GetKey("left") && !Input.GetKey("right"))
+            {
+                direction = new Vector2(-1, 1); // Ball is launched to the left if key is pressed
+                speed = startSpeed + 0.5f; // Faster speed to balance player able to pick direction
+            }
+
+            else if (Input.GetKey("right") && !Input.GetKey("left"))
+            {
+                direction = new Vector2(1, 1); // Ball is launched to the left if key is pressed
+                speed = startSpeed + 0.5f; // Faster speed to balance player able to pick direction
+            }
+
+            else
+            {
+                direction = new Vector2(1, 1); // Default behavior - ball is launched to the right even if no key is pressed - regular speed
+                speed = startSpeed;
+            }
+
+            Debug.Log("Direction: " + direction);
+
+            rb.velocity = direction * speed;
+
+            message.Clear();
+            playSound.Launch();
+
+        }
     }
 
     void GetDirection()
@@ -132,80 +169,42 @@ public class Ball : MonoBehaviour
         }
     }
 
-    void Launch()
-    {
-        if (isAttached && transform.parent != null && Input.GetKeyDown("space"))
-        {
-            Detach();
-            timer.StartTimer(); // Starts timer when ball is launched
-
-            if (Input.GetKey("left") && !Input.GetKey("right")) 
-            {
-                direction = new Vector2(-1, 1); // Ball is launched to the left if key is pressed
-                startSpeed = 2.5f; // Faster speed to balance player able to pick direction
-                Debug.Log("Player was moving. Ball launched to the left with increased speed");
-            }
-
-            else if (Input.GetKey("right") && !Input.GetKey("left"))
-            {
-                direction = new Vector2(1, 1); // Ball is launched to the left if key is pressed
-                startSpeed = 2.5f; // Faster speed to balance player able to pick direction
-                Debug.Log("Player was moving. Ball launched to the right with increased speed");
-            }
-
-            else
-            {
-                direction = new Vector2(1, 1); // Default behavior - ball is launched to the right even if no key is pressed - regular speed
-                startSpeed = 2f;
-                Debug.Log("Player wasn't moving. Ball launched to the right with regular speed");
-            }
-
-            Debug.Log("Direction: " + direction);
-
-            speed = startSpeed;
-            rb.velocity = direction * speed;
-
-            message.Clear();
-            playSound.Launch();
-
-        }
-    }
-
     void HitBounds()
     {
-        if (transform.position.x < minX || transform.position.x > maxX || transform.position.y > maxY)
+        if (transform.position.x < minX)
         {
-            MultiplySpeed(bounceSpeedMultiplier);
-            rb.velocity = rb.velocity * bounceSpeedMultiplier;
-            playSound.Beep();
-
-            if (transform.position.x < minX)
-            {
-                transform.position = new Vector2(minX, transform.position.y);
-                InvertSpeedX();
-            }
-
-            if (transform.position.x > maxX)
-            {
-                transform.position = new Vector2(maxX, transform.position.y);
-                InvertSpeedX();
-            }
-
-            if (transform.position.y > maxY)
-            {
-                transform.position = new Vector2(transform.position.x, maxY);
-                InvertSpeedY();
-            }
-
-            Ghost();
-
+            transform.position = new Vector2(minX, transform.position.y);
+            InvertSpeedX();
         }
+
+        else if (transform.position.x > maxX)
+        {
+            transform.position = new Vector2(maxX, transform.position.y);
+            InvertSpeedX();
+        }
+
+        else if (transform.position.y > maxY)
+        {
+            transform.position = new Vector2(transform.position.x, maxY);
+            InvertSpeedY();
+        }
+
+        else
+        {
+            return; // Ball didn't hit any bounds, so the code below won't be run because of return;
+        }
+
+        MultiplySpeed(bounceSpeedMultiplier); // Might be different for each level and set by GameManager singleton -- Need to decide that
+        playSound.Beep();
+        Ghost();
     }
 
     public void MultiplySpeed(float multiplier)
     {
+        GetDirection();
         speed *= multiplier;
-
+        EnforceLimits();
+        rb.velocity = direction * speed;
     }
 
     void InvertSpeedX()
@@ -222,22 +221,27 @@ public class Ball : MonoBehaviour
     {
         if (col.gameObject.tag == "Common Brick")
         {
-            if (hasBomb)
+            if (hasBomb) // If player has both bomb and ghost items, we'll prioritize the bomb in the collision
             {
                 ExplodeBomb();
+                return; // Prevent playing beep sound because we'll play the bomb sound instead
             }
 
-            else
+            if (hasGhost && !hasBomb)
+            {
+                rb.velocity = lastVelocity; // Overrides the bouncing effect to make the ball pass through bricks
+            }
+
+            if (!hasGhost && !hasBomb)
             {
                 MultiplySpeed(bounceSpeedMultiplier);
-                rb.velocity = rb.velocity * bounceSpeedMultiplier;
+            }
 
-                brickCollisions++;
+            brickCollisions++;
 
-                if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
-                {
-                    playSound.Beep();
-                }
+            if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
+            {
+                playSound.Beep();
             }
 
         }
@@ -301,7 +305,6 @@ public class Ball : MonoBehaviour
             }
 
             MultiplySpeed(bounceSpeedMultiplier);
-            rb.velocity = direction * speed;
             InvertSpeedY();
 
         }
@@ -317,6 +320,11 @@ public class Ball : MonoBehaviour
             if (speed > maxSpeed)
             {
                 speed = maxSpeed;
+            }
+
+            if (speed < startSpeed)
+            {
+                speed = startSpeed;
             }
 
             // Fix direction X
@@ -389,6 +397,8 @@ public class Ball : MonoBehaviour
             player.StopBot();
             hasBomb = false;
             hasGhost = false;
+            rb.isKinematic = false;
+            ghostCount = 0;
             Attach();
         }
     }
@@ -413,10 +423,13 @@ public class Ball : MonoBehaviour
         if (hasGhost)
         {
             ghostCount++;
+            Debug.Log("collisions after ghost: " + ghostCount);
 
             if (ghostCount == 2)
             {
                 hasGhost = false;
+                rb.isKinematic = false;
+                ghostCount = 0;
             }
         }
     }

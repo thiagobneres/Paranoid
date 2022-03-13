@@ -44,7 +44,7 @@ public class DropItem : MonoBehaviour
     // Collision with bricks doesn't invert ball movement until it hits 2 other fixed objects (player, bound, or gray brick)
 
     // "Bot"
-    // Bar Y axis follows ball for 10s
+    // Bar Y axis follows ball for 15s
 
     // "Clock"
     // Time + 30s

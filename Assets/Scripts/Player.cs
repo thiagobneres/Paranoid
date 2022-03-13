@@ -70,11 +70,11 @@ public class Player : MonoBehaviour
             {
                 if (!invertedAxis)
                 {
-                    transform.position += Vector3.left * (playerSpeed + 5) * Time.deltaTime;
+                    transform.position += Vector3.left * 5 * playerSpeed * Time.deltaTime;
                 }
                 else
                 {
-                    transform.position += Vector3.right * (playerSpeed + 5) * Time.deltaTime;
+                    transform.position += Vector3.right * 5 * playerSpeed * Time.deltaTime;
                 }
             }
 
@@ -82,12 +82,12 @@ public class Player : MonoBehaviour
             {
                 if (!invertedAxis)
                 {
-                    transform.position += Vector3.right * (playerSpeed + 5) * Time.deltaTime;
+                    transform.position += Vector3.right * 5 * playerSpeed * Time.deltaTime;
                 }
 
                 else
                 {
-                    transform.position += Vector3.left * (playerSpeed + 5) * Time.deltaTime;
+                    transform.position += Vector3.left * 5 * playerSpeed * Time.deltaTime;
                 }
             }
         }
@@ -126,7 +126,7 @@ public class Player : MonoBehaviour
     {
         float newSpeed = playerSpeed += modifier;
 
-        if (newSpeed < 0.5f || newSpeed > 3)
+        if (newSpeed < 0.5f || newSpeed > 2)
         {
             return; // Hit min or max speed already
         }
@@ -220,7 +220,7 @@ public class Player : MonoBehaviour
     IEnumerator WaitToStopBot()
     {
         botCoroutineRunning = true;
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(15f);
         botCoroutineRunning = false;
         StopBot();
     }

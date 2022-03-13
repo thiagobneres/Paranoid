@@ -47,7 +47,7 @@ public class Item_BarSpeedDown : MonoBehaviour
         {
             if (!used)
             {
-                player.ModifySpeed(-0.5f);
+                player.ModifySpeed(-0.25f);
                 sound.PowerDown();
             }
             used = true;

@@ -54,6 +54,7 @@ public class Item_Ghost : MonoBehaviour
             if (!used)
             {
                 ball.hasGhost = true;
+                ball.rb.isKinematic = true;
                 sound.PowerUp();
             }
             used = true;

@@ -48,7 +48,7 @@ public class Item_BarSpeedUp : MonoBehaviour
         {
             if (!used)
             {
-                player.ModifySpeed(1f);
+                player.ModifySpeed(0.25f);
                 sound.PowerUp();
             }
             used = true;
