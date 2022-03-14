@@ -15,7 +15,7 @@ public class CommonBrick : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other) // This needs to be separate because Bomb Area GO is Kinematic / isTrigger = true
     {
-        if (other.tag == "Bomb")
+        if (other.tag == "Bomb" || other.tag == "Ball") // For when the ball is kinematic due to Ghost item
         {
             Destroy(gameObject);
         }

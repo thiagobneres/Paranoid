@@ -9,6 +9,7 @@ public class Ball : MonoBehaviour
     public bool isAttached = true;
 
     public Rigidbody2D rb;
+    public Collider2D ballCollider;
 
     private Vector2 direction;
     private Vector2 lastVelocity;
@@ -55,6 +56,8 @@ public class Ball : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        ballCollider = GetComponent<Collider2D>();
 
         playerObj = GameObject.Find("Player");
         player = playerObj.GetComponent<Player>();
@@ -224,22 +227,22 @@ public class Ball : MonoBehaviour
             if (hasBomb) // If player has both bomb and ghost items, we'll prioritize the bomb in the collision
             {
                 ExplodeBomb();
-                return; // Prevent playing beep sound because we'll play the bomb sound instead
+                return;
             }
 
             if (hasGhost && !hasBomb)
             {
                 rb.velocity = lastVelocity; // Overrides the bouncing effect to make the ball pass through bricks
+                brickCollisions++;
             }
 
             if (!hasGhost && !hasBomb)
             {
                 MultiplySpeed(bounceSpeedMultiplier);
+                brickCollisions++;
             }
 
-            brickCollisions++;
-
-            if (brickCollisions == 1) // Prevents playing sound twice when ball collides with 2 bricks at the same time
+            if (brickCollisions == 1 && !hasBomb) // Prevents playing sound twice when ball collides with 2 bricks at the same time
             {
                 playSound.Beep();
             }
@@ -253,6 +256,11 @@ public class Ball : MonoBehaviour
         {
             HitPlayer();
             Ghost();
+            playSound.Beep();
+        }
+
+        if (col.tag == "Common Brick" && !hasBomb)
+        {
             playSound.Beep();
         }
     }
@@ -429,6 +437,7 @@ public class Ball : MonoBehaviour
             {
                 hasGhost = false;
                 rb.isKinematic = false;
+                ballCollider.isTrigger = false;
                 ghostCount = 0;
             }
         }

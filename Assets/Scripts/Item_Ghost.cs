@@ -55,6 +55,7 @@ public class Item_Ghost : MonoBehaviour
             {
                 ball.hasGhost = true;
                 ball.rb.isKinematic = true;
+                ball.ballCollider.isTrigger = true;
                 sound.PowerUp();
             }
             used = true;

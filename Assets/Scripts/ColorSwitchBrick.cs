@@ -40,6 +40,35 @@ public class ColorSwitchBrick : MonoBehaviour
 
     }
 
+    void OnTriggerEnter2D(Collider2D col) // Necessary to repeat this here for cases when the ball is under the Ghost effect (kinematic + isTrigger)
+    {
+        if (col.tag == "Ball")
+
+        {
+            hits++;
+
+            if (hits == 1)
+            {
+                ColorSwitch();
+                return;
+            }
+
+            if (hits == 2)
+            {
+                Destroy(gameObject);
+            }
+
+        }
+
+        if (col.tag == "Bomb")
+        {
+            Destroy(gameObject);
+        }
+
+    }
+
+
+
     void ColorSwitch()
     {
         if (transform.name.Contains("Lime")) // Lime
